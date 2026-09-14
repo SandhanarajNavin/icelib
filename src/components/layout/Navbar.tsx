@@ -2,42 +2,61 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { navLinks, site } from "@/content/site";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { navLinks, orderUrl, site } from "@/content/site";
 import { useScrolled } from "@/hooks/useScrolled";
-import { useActiveSection } from "@/hooks/useActiveSection";
 
 export default function Navbar() {
   const scrolled = useScrolled(40);
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const ids = useMemo(() => navLinks.map((l) => l.href.slice(1)), []);
-  const active = useActiveSection(ids);
+  /* Close the drawer on navigation — the bar persists across route changes. */
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  /*
+    Only the home page puts a full-bleed photograph behind the bar. Everywhere
+    else the bar sits on a light page header, so it needs its own surface from
+    the very top rather than waiting for a scroll.
+  */
+  const overHero = pathname === "/" && !scrolled;
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
+    /*
+      The bar stays blue rather than cream when it has a surface: the logo mark
+      is white-on-transparent, so a light bar would swallow it. It takes the
+      brand cobalt specifically, matching the hero and every page header — so
+      the bar merges into whatever sits at the top of the page instead of
+      banding across it.
+    */
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "border-b border-white/10 bg-ink-900/85 backdrop-blur-xl"
-          : "border-b border-transparent bg-transparent"
+        overHero
+          ? "tone-scrim border-b border-transparent bg-transparent"
+          : "tone-cobalt border-b border-line bg-brand/92 backdrop-blur-xl"
       }`}
     >
       <nav
         aria-label="Primary"
-        className="container-x flex items-center justify-between gap-6 py-4 sm:py-5"
+        className="container-x flex items-center justify-between gap-6 py-5 sm:py-7"
       >
         <Link
-          href="#home"
-          onClick={() => setOpen(false)}
+          href="/"
           aria-label={`${site.name} — home`}
-          className="relative block h-[3.75rem] w-[101px] shrink-0 transition-opacity hover:opacity-80 sm:h-[4.375rem] sm:w-[118px]"
+          className="relative block h-[2.6rem] w-[132px] shrink-0 transition-opacity hover:opacity-80 sm:h-[3rem] sm:w-[153px]"
         >
           <Image
-            src="/images/logo-mark.png"
+            src="/images/logo-wordmark.png"
             alt={`${site.name}, ${site.tagline}`}
             fill
             priority
-            sizes="118px"
+            sizes="153px"
             className="object-contain object-left"
           />
         </Link>
@@ -45,14 +64,14 @@ export default function Navbar() {
         {/* Desktop links */}
         <ul className="hidden items-center gap-10 lg:flex">
           {navLinks.map((link) => {
-            const isActive = active === link.href.slice(1);
+            const active = isActive(link.href);
             return (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  aria-current={isActive ? "page" : undefined}
+                  aria-current={active ? "page" : undefined}
                   className={`relative py-1.5 text-[0.95rem] transition-colors ${
-                    isActive
+                    active
                       ? "font-semibold text-fg"
                       : "text-fg-soft/75 hover:text-fg"
                   }`}
@@ -61,7 +80,7 @@ export default function Navbar() {
                   <span
                     aria-hidden
                     className={`absolute -bottom-1 left-0 h-[2px] rounded-full bg-accent transition-all duration-300 ${
-                      isActive ? "w-full" : "w-0"
+                      active ? "w-full" : "w-0"
                     }`}
                   />
                 </Link>
@@ -72,8 +91,10 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="#menu"
-            className="hidden rounded-full border border-accent px-6 py-2.5 text-[0.9rem] font-semibold text-fg transition hover:bg-accent hover:text-ink-950 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:inline-flex"
+            href={orderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-pill btn-outline hidden h-11 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:inline-flex"
           >
             Order Now
           </Link>
@@ -85,7 +106,7 @@ export default function Navbar() {
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Close menu" : "Open menu"}
-            className="flex h-10 w-10 flex-col items-center justify-center gap-[5px] rounded-lg text-fg transition hover:bg-white/5 lg:hidden"
+            className="flex h-10 w-10 flex-col items-center justify-center gap-[5px] rounded-lg text-fg transition hover:bg-fg/10 lg:hidden"
           >
             <span
               className={`h-[2px] w-6 rounded-full bg-current transition-all duration-300 ${
@@ -110,18 +131,17 @@ export default function Navbar() {
       <div
         id="mobile-menu"
         hidden={!open}
-        className="border-t border-white/10 bg-ink-900/95 backdrop-blur-xl lg:hidden"
+        className="tone-cobalt border-t border-line bg-brand/95 backdrop-blur-xl lg:hidden"
       >
         <ul className="container-x flex flex-col gap-1 py-4">
           {navLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
-                onClick={() => setOpen(false)}
                 className={`block rounded-lg px-3 py-3 text-base transition ${
-                  active === link.href.slice(1)
-                    ? "bg-accent/10 font-semibold text-fg"
-                    : "text-fg-soft/75 hover:bg-white/5 hover:text-fg"
+                  isActive(link.href)
+                    ? "bg-fg/10 font-semibold text-fg"
+                    : "text-fg-soft/75 hover:bg-fg/10 hover:text-fg"
                 }`}
               >
                 {link.label}
@@ -130,9 +150,10 @@ export default function Navbar() {
           ))}
           <li className="mt-2">
             <Link
-              href="#menu"
-              onClick={() => setOpen(false)}
-              className="block rounded-xl border border-accent px-3 py-3 text-center text-base font-semibold text-fg transition hover:bg-accent hover:text-ink-950"
+              href={orderUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-pill btn-outline w-full"
             >
               Order Now
             </Link>

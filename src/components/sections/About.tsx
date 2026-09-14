@@ -1,7 +1,7 @@
 import Image from "next/image";
 import MaskReveal from "@/components/ui/MaskReveal";
 import SplitWords from "@/components/ui/SplitWords";
-import Section from "@/components/ui/Section";
+import Section, { type Tone } from "@/components/ui/Section";
 import Reveal from "@/components/ui/Reveal";
 
 const notes = [
@@ -19,9 +19,11 @@ const notes = [
   },
 ];
 
-export default function About() {
+export default function About({ tone = "cream", bare = false }: { tone?: Tone; bare?: boolean }) {
   return (
     <Section
+      tone={tone}
+      bare={bare}
       id="story"
       eyebrow="Our Story"
       title={
@@ -35,7 +37,7 @@ export default function About() {
       <div className="grid gap-14 lg:grid-cols-2 lg:items-center lg:gap-20">
         <Reveal>
           <div className="relative">
-            <div className="relative aspect-4/5 overflow-hidden rounded-2xl sm:aspect-3/4">
+            <div className="relative aspect-4/5 overflow-hidden rounded-card sm:aspect-3/4">
               <Image
                 src="/images/ambiance.jpg"
                 alt="Open-air deck seating overlooking the lake at dusk with string lights overhead"
@@ -50,7 +52,7 @@ export default function About() {
             </div>
 
             {/* Floating caption card */}
-            <div className="absolute -bottom-6 -right-4 max-w-[15rem] rounded-xl border border-fg-soft/15 bg-ink-800/90 p-5 backdrop-blur-md sm:-right-8">
+            <div className="absolute -bottom-6 -right-4 max-w-[15rem] rounded-xl border border-line bg-card p-5 shadow-[0_18px_44px_-24px_rgba(16,32,58,0.45)] sm:-right-8">
               <p className="font-display text-3xl text-accent-soft">2019</p>
               <p className="mt-1.5 text-sm leading-snug text-muted/75">
                 One container, four tables, and a queue that hasn&apos;t really

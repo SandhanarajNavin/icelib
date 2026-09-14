@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { hours, site } from "@/content/site";
-import Section from "@/components/ui/Section";
+import Section, { type Tone } from "@/components/ui/Section";
 import Reveal from "@/components/ui/Reveal";
 
-export default function Visit() {
+export default function Visit({ tone = "cream", bare = false }: { tone?: Tone; bare?: boolean }) {
   return (
     <Section
+      tone={tone}
+      bare={bare}
       id="visit"
       eyebrow="Visit Us"
       title={
@@ -44,7 +46,7 @@ export default function Visit() {
                 {hours.map((h) => (
                   <div
                     key={h.days}
-                    className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-fg-soft/10 pb-3"
+                    className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-line pb-3"
                   >
                     <dt className="text-fg-soft/85">{h.days}</dt>
                     <dd className="text-sm tabular-nums text-muted/65">
@@ -79,7 +81,7 @@ export default function Visit() {
         </Reveal>
 
         <Reveal delay={0.12}>
-          <div className="relative h-full min-h-[26rem] overflow-hidden rounded-2xl border border-fg-soft/10">
+          <div className="relative h-full min-h-[26rem] overflow-hidden rounded-card border border-line">
             <Image
               src="/images/lakeside.jpg"
               alt="Glass-topped tables on the wooden deck with the lake and city skyline beyond"
@@ -91,7 +93,7 @@ export default function Visit() {
               aria-hidden
               className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/25 to-transparent"
             />
-            <div className="absolute inset-x-0 bottom-0 p-7">
+            <div className="tone-scrim absolute inset-x-0 bottom-0 p-7">
               <p className="font-display text-xl text-fg">
                 Parking on Race Course Road
               </p>

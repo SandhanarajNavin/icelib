@@ -1,28 +1,37 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Caveat } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { site } from "@/content/site";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
+/* Display serif — the headline face throughout the design. */
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-jakarta",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-cormorant",
   display: "swap",
 });
 
-const caveat = Caveat({
+/* UI / body sans. */
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-caveat",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Icelib & Co — Drinks & Eatery",
+  title: {
+    default: `${site.name} — ${site.tagline}`,
+    template: `%s — ${site.name}`,
+  },
   description:
     "Lakeside drinks and eatery in Coimbatore. Momos, signature kunafa bowls, brownies and mojitos, served under the string lights until late.",
   metadataBase: new URL("https://icelibandco.in"),
   openGraph: {
-    title: "Icelib & Co — Drinks & Eatery",
+    title: `${site.name} — ${site.tagline}`,
     description:
       "Lakeside drinks and eatery in Coimbatore. Momos, signature bowls, brownies and mojitos under the string lights.",
     images: ["/images/shop.png"],
@@ -31,7 +40,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b1220",
+  themeColor: "#f7f3ea",
 };
 
 export default function RootLayout({
@@ -40,8 +49,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${caveat.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
+      <body>
+        <Navbar />
+        <main>{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }

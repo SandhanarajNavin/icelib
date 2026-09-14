@@ -18,12 +18,15 @@ export const site = {
 } as const;
 
 export const navLinks: NavLink[] = [
-  { label: "Home", href: "#home" },
-  { label: "About Us", href: "#story" },
-  { label: "Menu", href: "#menu" },
-  { label: "Gallery", href: "#ambiance" },
-  { label: "Contact", href: "#visit" },
+  { label: "Home", href: "/" },
+  { label: "Menu", href: "/menu" },
+  { label: "Gallery", href: "/gallery" },
+  { label: "Brand Story", href: "/brand-story" },
+  { label: "Contact", href: "/contact" },
 ];
+
+/** Ordering goes out to a delivery partner rather than a page of our own. */
+export const orderUrl = "https://swiggy.com";
 
 export const hours: Hours[] = [
   { days: "Monday — Thursday", time: "11:00 am — 11:00 pm" },

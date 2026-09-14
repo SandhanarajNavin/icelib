@@ -3,6 +3,13 @@ import Reveal from "./Reveal";
 import MaskReveal from "./MaskReveal";
 import SplitWords from "./SplitWords";
 
+/**
+ * The design alternates a warm off-white page with solid blue blocks. A
+ * section declares which it is, and every foreground token inside resolves
+ * against that surface — see the tone classes in globals.css.
+ */
+export type Tone = "cream" | "cobalt" | "deep";
+
 type SectionProps = {
   id: string;
   eyebrow?: string;
@@ -11,6 +18,9 @@ type SectionProps = {
   children: ReactNode;
   /** Centre the heading block instead of left-aligning it. */
   centered?: boolean;
+  tone?: Tone;
+  /** Skip the heading block — the page already has a PageHeader above it. */
+  bare?: boolean;
   className?: string;
 };
 
@@ -28,13 +38,19 @@ export default function Section({
   intro,
   children,
   centered = false,
+  tone = "cream",
+  bare = false,
   className = "",
 }: SectionProps) {
   const align = centered ? "mx-auto max-w-2xl text-center" : "max-w-2xl";
 
   return (
-    <section id={id} className={`py-16 sm:py-20 ${className}`}>
+    <section
+      id={id}
+      className={`tone-${tone} bg-surface py-20 sm:py-28 ${className}`}
+    >
       <div className="container-x">
+        {!bare && (
         <div className={align}>
           {eyebrow && (
             <Reveal>
@@ -43,13 +59,18 @@ export default function Section({
                   centered ? "justify-center" : ""
                 }`}
               >
-                <span className="h-px w-8 bg-accent/60" />
+                <span className="h-px w-8 bg-accent/50" />
                 {eyebrow}
               </p>
             </Reveal>
           )}
 
-          <h2 className="mt-5 font-display text-4xl leading-tight tracking-tight text-fg text-balance sm:text-5xl">
+          {/*
+            Display serif, set uppercase and tight-leaded as in the design.
+            Cormorant runs optically small, so the section heading sits at the
+            design's 48px rather than the sans it replaced.
+          */}
+          <h2 className="display mt-5 text-[2.5rem] text-fg text-balance sm:text-5xl">
             <MaskReveal delay={0.08}>{title}</MaskReveal>
           </h2>
 
@@ -64,8 +85,9 @@ export default function Section({
             />
           )}
         </div>
+        )}
 
-        <div className="mt-10 sm:mt-12">{children}</div>
+        <div className={bare ? "" : "mt-12 sm:mt-14"}>{children}</div>
       </div>
     </section>
   );

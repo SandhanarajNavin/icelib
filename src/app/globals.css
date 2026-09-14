@@ -1,30 +1,120 @@
 @import "tailwindcss";
 
+/**
+ * Theme: ICELIB & CO — cobalt editorial
+ * Values lifted from the Figma file (iPOAo2pa6f5b4yVr7nXsvI).
+ * That file publishes no variables, so these are its raw design values.
+ *
+ * The design is a warm off-white page punctuated by solid cobalt blocks, so
+ * colour here is SURFACE-RELATIVE: a section declares its tone, and the
+ * foreground tokens below resolve against it. Components keep using `text-fg`,
+ * `text-muted`, `border-line` and so on, and get the right value for whatever
+ * they happen to be sitting on.
+ */
 @theme {
-  /* Surfaces — deep navy */
-  --color-ink-950: #040b14; /* deepest well, derived below the primary */
-  --color-ink-900: #07111f; /* primary background */
-  --color-ink-800: #0b1726; /* secondary background */
-  --color-ink-700: #102238; /* card / surface */
+  /* ---- Fixed brand palette ---- */
+  --color-brand: #0b4dbb;      /* cobalt — the design's primary */
+  --color-brand-deep: #063887; /* deep blue — gallery, footer */
+  --color-cream: #f7f3ea;      /* page background */
+  --color-cream-deep: #e8dec9; /* warm panel / text on blue */
+  --color-ink: #10203a;        /* headings on light */
+  --color-slate: #667085;      /* body on light */
 
-  /* Champagne gold */
-  --color-accent: #d6a84f;
-  --color-accent-bright: #e4be72;
-  --color-accent-soft: #efd79f;
+  /* Dark ramp, for scrims over photography. Fixed, not surface-relative. */
+  --color-ink-950: #041229;
+  --color-ink-900: #061b3d; /* the Figma hero scrim */
+  --color-ink-800: #063887;
+  --color-ink-700: #0b4dbb;
 
-  /* Type */
-  --color-fg: #f7f3ea;      /* warm ivory */
-  --color-fg-soft: #dcd8cd; /* ivory, stepped back */
-  --color-muted: #aab5c3;   /* soft blue-grey */
+  /**
+   * Surface-relative tokens. These carry the cream defaults; the tone classes
+   * below redefine them in place.
+   *
+   * They must be declared with literal values, not `var(--something-else)`:
+   * an indirection like `--color-fg: var(--s-fg)` is substituted once, where
+   * it is declared, and the resolved value then inherits down the tree — so
+   * redefining the inner variable in a section would have no effect.
+   */
+  --color-surface: #f7f3ea;
+  --color-card: #ffffff;
+  --color-line: rgba(16, 32, 58, 0.14);
+  --color-fg: #10203a;
+  --color-fg-soft: #2f3d55;
+  --color-muted: #667085;
+  --color-accent: #0b4dbb;
+  --color-accent-bright: #0a44a6;
+  --color-accent-soft: #0b4dbb;
 
-  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  --font-script: var(--font-caveat), ui-serif, cursive;
+  --font-display: var(--font-cormorant), ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-script: var(--font-cormorant), ui-serif, Georgia, serif;
+
+  /* Figma uses a 12px photo/card radius and 999px pills */
+  --radius-card: 12px;
+  --radius-pill: 999px;
 }
 
+/* ---- Tones ------------------------------------------------------------ */
+
+/* Cream — the page default, restated so the class can be applied explicitly. */
+.tone-cream {
+  --color-surface: #f7f3ea;
+  --color-card: #ffffff;
+  --color-line: rgba(16, 32, 58, 0.14);
+  --color-fg: #10203a;
+  --color-fg-soft: #2f3d55;
+  --color-muted: #667085;
+  --color-accent: #0b4dbb;
+  --color-accent-bright: #0a44a6;
+  --color-accent-soft: #0b4dbb;
+}
+
+/* Cobalt block — Figma's Signature Menu and Reservation callout. */
+.tone-cobalt {
+  --color-surface: #0b4dbb;
+  --color-card: rgba(255, 255, 255, 0.1);
+  --color-line: rgba(255, 255, 255, 0.26);
+  --color-fg: #ffffff;
+  --color-fg-soft: #e8dec9;
+  --color-muted: #e8dec9;
+  --color-accent: #e8dec9;
+  --color-accent-bright: #ffffff;
+  --color-accent-soft: #ffffff;
+}
+
+/* Deep blue block — Figma's Gallery and Footer. */
+.tone-deep {
+  --color-surface: #063887;
+  --color-card: rgba(255, 255, 255, 0.09);
+  --color-line: rgba(255, 255, 255, 0.2);
+  --color-fg: #ffffff;
+  --color-fg-soft: #e8dec9;
+  --color-muted: #e8dec9;
+  --color-accent: #e8dec9;
+  --color-accent-bright: #ffffff;
+  --color-accent-soft: #ffffff;
+}
+
+/*
+  White-on-photography — the hero copy, the transparent navbar over it, and
+  captions sitting on dark imagery. The hero paints its own neutral scrim, so
+  `--color-surface` here is only what a filled control reverses out to; it
+  stays brand cobalt for that reason.
+*/
+.tone-scrim {
+  --color-surface: #0b4dbb;
+  --color-card: rgba(255, 255, 255, 0.1);
+  --color-line: rgba(255, 255, 255, 0.26);
+  --color-fg: #ffffff;
+  --color-fg-soft: #e8dec9;
+  --color-muted: rgba(255, 255, 255, 0.82);
+  --color-accent: #e8dec9;
+  --color-accent-bright: #ffffff;
+  --color-accent-soft: #ffffff;
+}
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -32,15 +122,15 @@ html {
 }
 
 body {
-  background-color: var(--color-ink-900);
-  color: var(--color-fg-soft);
+  background-color: var(--color-cream);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-ink-950);
+  background: var(--color-brand);
+  color: #ffffff;
 }
 
 /* ---- Utilities ---- */
@@ -69,34 +159,151 @@ body {
   text-wrap: balance;
 }
 
+/**
+ * Eyebrow — 11px bold, wide tracking, uppercase, straight from the Figma
+ * section headers.
+ */
 .eyebrow {
-  font-size: 0.72rem;
-  letter-spacing: 0.32em;
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 /**
- * Handwritten accent word inside a heading. Caveat has a much smaller
- * cap height than the display sans, so it needs scaling up to sit level
- * with the words either side of it.
+ * Display heading treatment. Cormorant Garamond is set uppercase and
+ * tight-leaded throughout the design; it also runs optically small, so
+ * headings carry a touch more size than the sans they replaced.
+ */
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  line-height: 0.98;
+  letter-spacing: 0.005em;
+}
+
+/**
+ * Accent word inside a heading. The design has no handwritten face, so the
+ * emphasis is carried by an italic cut of the display serif instead.
  */
 .accent-script {
   font-family: var(--font-script);
-  font-weight: 700;
-  font-size: 1.28em;
-  line-height: 0.85;
-  color: var(--color-accent-bright);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.06em;
+  line-height: 0.9;
+  color: var(--color-accent);
+  text-transform: none;
 }
 
-/* Warm bloom behind focal points */
+/* Cool bloom behind focal points */
 .accent-glow {
   background: radial-gradient(
     circle,
-    rgba(214, 168, 79, 0.38) 0%,
-    rgba(214, 168, 79, 0.1) 45%,
+    rgba(11, 77, 187, 0.5) 0%,
+    rgba(11, 77, 187, 0.16) 45%,
     transparent 72%
   );
+}
+
+/*
+  Buttons and chips sit in the components layer so Tailwind utilities still
+  win against them. `.btn-pill` sets `display: inline-flex`; unlayered, that
+  beat `hidden` and the header's Order Now pill stayed visible on phones.
+*/
+@layer components {
+  /* ---- Pill actions — the design's only button shape ---- */
+  .btn-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    height: 52px;
+    padding-inline: 1.5rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid transparent;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: background-color 0.25s, color 0.25s, border-color 0.25s;
+  }
+
+  /* Solid: filled cobalt on cream, filled white on blue. */
+  .btn-solid {
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+    color: #ffffff;
+  }
+
+  .btn-solid:hover {
+    background: #0a44a6;
+    border-color: #0a44a6;
+  }
+
+  .tone-cobalt .btn-solid,
+  .tone-deep .btn-solid,
+  .tone-scrim .btn-solid {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: var(--color-brand);
+  }
+
+  .tone-cobalt .btn-solid:hover,
+  .tone-deep .btn-solid:hover,
+  .tone-scrim .btn-solid:hover {
+    background: var(--color-cream-deep);
+    border-color: var(--color-cream-deep);
+  }
+
+  /* ---- Filter chips (menu categories) — the pill, at a smaller weight ---- */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-line);
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-fg-soft);
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  }
+
+  .chip:hover {
+    border-color: var(--color-fg);
+    color: var(--color-fg);
+  }
+
+  /* Selected: cobalt on cream, white on blue — the same flip the buttons use. */
+  .chip-on,
+  .chip-on:hover {
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+    color: #ffffff;
+  }
+
+  .tone-cobalt .chip-on,
+  .tone-deep .chip-on,
+  .tone-scrim .chip-on,
+  .tone-cobalt .chip-on:hover,
+  .tone-deep .chip-on:hover,
+  .tone-scrim .chip-on:hover {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: var(--color-brand);
+  }
+
+  /* Outline: inherits the surface's foreground. */
+  .btn-outline {
+    border-color: currentColor;
+    color: var(--color-fg);
+  }
+
+  .btn-outline:hover {
+    background: var(--color-fg);
+    color: var(--color-surface);
+  }
 }
 
 /* Reveal-on-scroll */
@@ -163,29 +370,6 @@ body {
   100% {
     opacity: 0;
   }
-}
-
-/* ---- Depth carousel ---- */
-.depth-track {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.depth-track::-webkit-scrollbar {
-  display: none;
-}
-
-/* ---- Circular gallery ---- */
-.ring-scene {
-  perspective: 1400px;
-}
-
-.ring {
-  transform-style: preserve-3d;
-}
-
-.ring-item {
-  backface-visibility: hidden;
 }
 
 /* Scroll cue */

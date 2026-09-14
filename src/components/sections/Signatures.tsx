@@ -1,6 +1,7 @@
 import Image from "next/image";
-import Section from "@/components/ui/Section";
-import DepthCarousel from "@/components/ui/DepthCarousel";
+import Link from "next/link";
+import Section, { type Tone } from "@/components/ui/Section";
+import Reveal from "@/components/ui/Reveal";
 
 const picks = [
   {
@@ -29,39 +30,25 @@ const picks = [
   },
 ];
 
-export default function Signatures() {
-  const items = picks.map((pick) => ({
-    key: pick.name,
-    node: (
-      <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-ink-800/60 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.9)]">
-        <div className="relative aspect-4/3 overflow-hidden">
-          <Image
-            src={pick.image}
-            alt={pick.alt}
-            fill
-            sizes="(min-width: 1024px) 26rem, (min-width: 640px) 22rem, 18rem"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-ink-950/80 via-ink-950/5 to-transparent"
-          />
-        </div>
-
-        <div className="flex flex-1 flex-col p-6">
-          <h3 className="font-display text-lg font-semibold leading-snug text-fg">
-            {pick.name}
-          </h3>
-          <p className="mt-2.5 text-sm leading-relaxed text-muted">
-            {pick.note}
-          </p>
-        </div>
-      </article>
-    ),
-  }));
-
+/**
+ * The must-try row.
+ *
+ * Laid out as a plain four-up grid, the way the Signature Menu reads in the
+ * design — photograph, title, note, a way in. The motion matches the gallery:
+ * each card fades and lifts a beat after the one before it, and the
+ * photograph eases into a slow zoom on hover. Nothing moves on its own.
+ */
+export default function Signatures({
+  tone = "cream",
+  bare = false,
+}: {
+  tone?: Tone;
+  bare?: boolean;
+}) {
   return (
     <Section
+      tone={tone}
+      bare={bare}
       id="signatures"
       eyebrow="Must-Try"
       centered
@@ -73,7 +60,41 @@ export default function Signatures() {
       }
       intro="Four things people come back for. Most nights, they're gone by ten."
     >
-      <DepthCarousel items={items} label="Must-try dishes" />
+      <div className="grid gap-8 sm:grid-cols-2 sm:gap-7 lg:grid-cols-4">
+        {picks.map((pick, i) => (
+          <Reveal key={pick.name} delay={i * 0.09} className="group h-full">
+            {/* Column so the Explore line sits on a shared baseline across
+                cards, however long each note runs. */}
+            <Link href="/menu" className="flex h-full flex-col">
+              <div className="relative aspect-4/3 overflow-hidden rounded-card border border-line">
+                <Image
+                  src={pick.image}
+                  alt={pick.alt}
+                  fill
+                  sizes="(min-width: 1024px) 23vw, (min-width: 640px) 46vw, 92vw"
+                  className="object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                />
+              </div>
+
+              <h3 className="mt-5 font-display text-2xl font-semibold leading-snug text-fg">
+                {pick.name}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                {pick.note}
+              </p>
+              <p className="eyebrow mt-auto pt-4 text-accent">
+                Explore{" "}
+                <span
+                  aria-hidden
+                  className="inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+                >
+                  &rarr;
+                </span>
+              </p>
+            </Link>
+          </Reveal>
+        ))}
+      </div>
     </Section>
   );
 }

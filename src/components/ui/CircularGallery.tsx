@@ -136,7 +136,7 @@ export default function CircularGallery({ images }: CircularGalleryProps) {
                   <figure
                     key={image.src}
                     aria-hidden={!isActive}
-                    className="ring-item absolute inset-0 overflow-hidden rounded-2xl border border-white/10"
+                    className="ring-item absolute inset-0 overflow-hidden rounded-card border border-line"
                     style={{
                       transform: `rotateY(${i * step}deg) translateZ(${radius}px)`,
                       opacity: away > 2.2 ? 0 : 1 - away * 0.28,

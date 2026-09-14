@@ -1,10 +1,12 @@
 import { gallery } from "@/content/gallery";
-import Section from "@/components/ui/Section";
-import CircularGallery from "@/components/ui/CircularGallery";
+import Section, { type Tone } from "@/components/ui/Section";
+import MasonryGallery from "@/components/ui/MasonryGallery";
 
-export default function Ambiance() {
+export default function Ambiance({ tone = "deep", bare = false }: { tone?: Tone; bare?: boolean }) {
   return (
     <Section
+      tone={tone}
+      bare={bare}
       id="ambiance"
       eyebrow="Gallery"
       centered
@@ -14,10 +16,9 @@ export default function Ambiance() {
           <span className="accent-script"> the city on the other</span>.
         </>
       }
-      intro="Open-air decking, glass-topped tables and bulbs strung through the branches. The ring holds and turns as you scroll through it."
-      className="bg-ink-800/35"
+      intro="Open-air decking, glass-topped tables and bulbs strung through the branches, over the water."
     >
-      <CircularGallery images={gallery} />
+      <MasonryGallery images={gallery} />
     </Section>
   );
 }

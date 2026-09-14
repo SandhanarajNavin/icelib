@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { menu, type MenuItem } from "@/content/menu";
-import Section from "@/components/ui/Section";
+import Section, { type Tone } from "@/components/ui/Section";
 import Reveal from "@/components/ui/Reveal";
 
 const tagStyles: Record<NonNullable<MenuItem["tag"]>, string> = {
@@ -17,12 +17,14 @@ const tagLabels: Record<NonNullable<MenuItem["tag"]>, string> = {
   new: "New",
 };
 
-export default function Menu() {
+export default function Menu({ tone = "cobalt", bare = false }: { tone?: Tone; bare?: boolean }) {
   const [activeId, setActiveId] = useState(menu[0].id);
   const active = menu.find((c) => c.id === activeId) ?? menu[0];
 
   return (
     <Section
+      tone={tone}
+      bare={bare}
       id="menu"
       eyebrow="The Menu"
       centered
@@ -33,7 +35,6 @@ export default function Menu() {
         </>
       }
       intro="Six sections, no filler. Prices in rupees, taxes included."
-      className="bg-ink-800/35"
     >
       {/* Category tabs */}
       <Reveal>
@@ -53,11 +54,7 @@ export default function Menu() {
               aria-selected={selected}
               aria-controls={`panel-${category.id}`}
               onClick={() => setActiveId(category.id)}
-              className={`rounded-full border px-5 py-2.5 text-sm font-medium transition-all duration-300 ${
-                selected
-                  ? "border-accent bg-accent text-ink-900"
-                  : "border-fg-soft/20 text-fg-soft/70 hover:border-fg-soft/45 hover:text-fg"
-              }`}
+              className={`chip ${selected ? "chip-on" : ""}`}
             >
               {category.label}
             </button>
@@ -82,7 +79,7 @@ export default function Menu() {
         {active.items.map((item, i) => (
           <article
             key={item.name}
-            className="rise group flex items-baseline gap-4 border-b border-fg-soft/10 py-5 transition-colors hover:border-accent/35"
+            className="rise group flex items-baseline gap-4 border-b border-line py-5 transition-colors hover:border-fg/45"
             style={{ animationDelay: `${i * 0.05}s` }}
           >
             <div className="min-w-0 flex-1">
@@ -107,7 +104,7 @@ export default function Menu() {
 
             <div
               aria-hidden
-              className="hidden flex-1 translate-y-[-3px] border-b border-dotted border-fg-soft/20 sm:block"
+              className="hidden flex-1 translate-y-[-3px] border-b border-dotted border-line sm:block"
             />
 
             <p className="shrink-0 font-display text-lg text-accent-soft tabular-nums">

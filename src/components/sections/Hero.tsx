@@ -15,50 +15,57 @@ const features = [
   { Icon: StarIcon, title: "Cozy Vibes", note: "Every time" },
 ];
 
-/* Solid channel values for the gradient stops; keep in sync with --color-ink-900. */
-const INK = "7, 17, 31";
+/*
+  Scrim channel values. Deliberately neutral rather than a brand blue: the
+  hero is the photograph, and the overlay is only here to carry the type. A
+  tinted scrim would recolour the warm bulbs and the container's own blue.
+*/
+const SCRIM = "9, 11, 15";
 
 export default function Hero() {
   return (
     <section
       id="home"
-      className="relative flex min-h-svh flex-col overflow-hidden bg-ink-900 lg:block"
+      className="tone-scrim relative flex min-h-svh flex-col justify-end overflow-hidden lg:justify-center"
+      style={{ backgroundColor: `rgb(${SCRIM})` }}
     >
       {/*
-        The real storefront photograph, sharp and framed so the container,
-        signage, bulbs and plants all stay in shot. Stacked above the copy on
-        phones; anchored right on desktop.
+        The storefront photograph, full bleed. It is the hero — nothing is
+        laid over it but the gradients the type needs to stay readable.
       */}
-      <div className="relative h-[52svh] w-full shrink-0 sm:h-[56svh] lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[64%]">
+      <div className="absolute inset-0">
         <Image
           src="/images/shop.png"
           alt="The Icelib and Co container cafe lit up at night beneath strings of warm bulbs"
           fill
           priority
           quality={90}
-          sizes="(min-width: 1024px) 64vw, 100vw"
+          sizes="100vw"
           className="object-cover object-center"
         />
 
-        {/* Mobile: fade the base of the photo into the copy below */}
+        {/*
+          Phones: the copy sits over the lower half, so the scrim builds from
+          near-nothing at the top to almost solid at the base.
+        */}
         <div
           aria-hidden
           className="absolute inset-0 lg:hidden"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(${INK},0.68) 0%, rgba(${INK},0.04) 20%, rgba(${INK},0.38) 62%, rgb(${INK}) 100%)`,
+            backgroundImage: `linear-gradient(to bottom, rgba(${SCRIM},0.55) 0%, rgba(${SCRIM},0.28) 14%, rgba(${SCRIM},0.74) 34%, rgba(${SCRIM},0.88) 58%, rgba(${SCRIM},0.95) 100%)`,
           }}
         />
 
         {/*
-          Desktop: a long graded wash off the left edge. It reaches full
-          density only where the type sits, and dissolves well before the
-          shopfront so the transition reads as light, not as a panel edge.
+          Desktop: density off the left edge only, where the copy is, fading
+          out well before the shopfront so the photograph reads unobstructed
+          on the right.
         */}
         <div
           aria-hidden
           className="absolute inset-0 hidden lg:block"
           style={{
-            backgroundImage: `linear-gradient(100deg, rgba(${INK},0.97) 0%, rgba(${INK},0.87) 11%, rgba(${INK},0.66) 27%, rgba(${INK},0.38) 44%, rgba(${INK},0.12) 62%, rgba(${INK},0) 79%)`,
+            backgroundImage: `linear-gradient(100deg, rgba(${SCRIM},0.9) 0%, rgba(${SCRIM},0.8) 20%, rgba(${SCRIM},0.62) 40%, rgba(${SCRIM},0.3) 56%, rgba(${SCRIM},0.08) 68%, rgba(${SCRIM},0) 78%)`,
           }}
         />
         {/* Vertical settle: keeps the navbar legible and grounds the base */}
@@ -66,28 +73,27 @@ export default function Hero() {
           aria-hidden
           className="absolute inset-0 hidden lg:block"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(${INK},0.6) 0%, rgba(${INK},0) 26%, rgba(${INK},0) 70%, rgba(${INK},0.55) 100%)`,
+            backgroundImage: `linear-gradient(to bottom, rgba(${SCRIM},0.5) 0%, rgba(${SCRIM},0) 28%, rgba(${SCRIM},0) 68%, rgba(${SCRIM},0.45) 100%)`,
           }}
         />
       </div>
 
       {/* Copy */}
-      <div className="container-x relative z-10 -mt-14 flex flex-1 flex-col justify-end pb-4 sm:pb-10 lg:mt-0 lg:min-h-svh lg:justify-center lg:pb-0 lg:pt-24">
+      <div className="container-x relative z-10 flex flex-col pb-8 pt-32 sm:pb-12 lg:min-h-svh lg:justify-center lg:pb-0 lg:pt-24">
         <div className="w-full lg:max-w-[52%] xl:max-w-[46%]">
           <h1
-            className="rise font-display text-[2.6rem] font-extrabold leading-[1.1] tracking-tight text-fg sm:text-[3.4rem] lg:text-[4.3rem]"
+            className="display rise text-[3rem] text-fg sm:text-[4rem] lg:text-[4.25rem]"
             style={{ animationDelay: "0.1s" }}
           >
             Sip. Bite.
             <br />
             <span className="relative mr-2.5 inline-block sm:mr-3.5">
               {/*
-                Caveat runs small for its point size, so it is scaled up — but
-                only enough to sit level with the sans, not to outweigh it.
+                The emphasis word, set in the italic cut of the display serif.
               */}
               <span
                 className="accent-script"
-                style={{ fontSize: "1.04em", lineHeight: 0.9 }}
+                style={{ fontSize: "1.06em", lineHeight: 0.9 }}
               >
                 Laugh.
               </span>
@@ -137,16 +143,16 @@ export default function Hero() {
             style={{ animationDelay: "0.46s" }}
           >
             <Link
-              href="#menu"
-              className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-accent px-7 py-4 text-[0.95rem] font-semibold text-ink-950 transition hover:bg-accent-bright hover:shadow-[0_12px_38px_-12px] hover:shadow-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:py-3.5"
+              href="/menu"
+              className="btn-pill btn-solid group w-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:w-auto"
             >
               Explore the Menu
               <ArrowRightIcon className="h-[1.05rem] w-[1.05rem] transition-transform group-hover:translate-x-1" />
             </Link>
 
             <Link
-              href="#visit"
-              className="inline-flex items-center justify-center gap-2.5 rounded-xl border border-accent/35 bg-ink-950/30 px-7 py-4 text-[0.95rem] font-semibold text-fg-soft backdrop-blur-sm transition hover:border-accent/70 hover:bg-accent/10 hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:py-3.5"
+              href="/contact"
+              className="btn-pill btn-outline w-full backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:w-auto"
             >
               Find Us
             </Link>
@@ -180,7 +186,7 @@ export default function Hero() {
 
       {/* Scroll cue — mobile only */}
       <Link
-        href="#story"
+        href="#signatures"
         aria-label="Scroll to next section"
         className="relative z-10 mx-auto mb-3 flex h-9 w-9 items-center justify-center text-fg-soft/70 lg:hidden"
       >
