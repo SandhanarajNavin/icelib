@@ -7,8 +7,19 @@ import { useEffect, useState } from "react";
 import { navLinks, orderUrl, site } from "@/content/site";
 import { useScrolled } from "@/hooks/useScrolled";
 
+/*
+  The home hero pins a film for several screens of scroll, so the bar stays
+  transparent until that film starts to leave the viewport. Pages without the
+  hero fall back to a plain 40px threshold.
+*/
+const heroEnd = () => {
+  const hero = document.getElementById("home");
+  if (!hero) return 40;
+  return Math.max(40, hero.offsetTop + hero.offsetHeight - window.innerHeight);
+};
+
 export default function Navbar() {
-  const scrolled = useScrolled(40);
+  const scrolled = useScrolled(heroEnd);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 

@@ -1,0 +1,13 @@
+# Netlify picks Next.js up automatically and installs its OpenNext adapter on
+# every build. The adapter is deliberately NOT pinned here — Netlify maintains
+# it against each Next release and updates it per build, which is their
+# documented recommendation.
+#
+# Node is pinned because Next 16 requires 20+, and a Netlify default that
+# drifts older would fail the build with a confusing error.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"

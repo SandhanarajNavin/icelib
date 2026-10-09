@@ -306,6 +306,14 @@ body {
   }
 }
 
+/*
+  Home hero scroll track. Its height is how much scrolling the frame sequence
+  plays across; the sticky panel inside stays on screen for all of it.
+*/
+.frames-track {
+  height: 420svh;
+}
+
 /* Reveal-on-scroll */
 .reveal {
   opacity: 0;
@@ -403,6 +411,10 @@ body {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  /* No scrubbing: the hero is one screen showing the finished tray. */
+  .frames-track {
+    height: auto;
   }
   html {
     scroll-behavior: auto;

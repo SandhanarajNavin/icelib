@@ -1,197 +1,401 @@
-import Image from "next/image";
-import Link from "next/link";
-import Typewriter from "@/components/ui/Typewriter";
-import {
-  ArrowRightIcon,
-  ChevronDownIcon,
-  CoffeeIcon,
-  HeartIcon,
-  StarIcon,
-} from "@/components/ui/icons";
+"use client";
 
-const features = [
-  { Icon: CoffeeIcon, title: "Premium Quality", note: "Finest ingredients" },
-  { Icon: HeartIcon, title: "Made with Love", note: "Just for you" },
-  { Icon: StarIcon, title: "Cozy Vibes", note: "Every time" },
-];
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import Typewriter from "@/components/ui/Typewriter";
+import { ArrowRightIcon, ChevronDownIcon } from "@/components/ui/icons";
+import { orderUrl } from "@/content/site";
 
 /*
-  Scrim channel values. Deliberately neutral rather than a brand blue: the
-  hero is the photograph, and the overlay is only here to carry the type. A
-  tinted scrim would recolour the warm bulbs and the container's own blue.
+  Scroll-scrubbed product film. The tall outer track gives the page room to
+  scroll; the inner panel sticks to the viewport while the frame sequence is
+  drawn to a canvas in step with the scroll position.
 */
-const SCRIM = "9, 11, 15";
+const FRAME_COUNT = 300;
+/*
+  Web frames generated from the 4K masters in images/icelib_enhanced, already
+  in play order: 001 is the exploded burger, 300 the assembled tray. Two
+  widths — the canvas picks the smallest that still covers it sharply.
+*/
+const frameSrc = (width: number, i: number) =>
+  `/images/hero-frames/${width}/${String(i + 1).padStart(3, "0")}.webp`;
+
+/* The frames' own backdrop, so letterboxing on phones blends in. */
+const BG = "#0b0c0e";
+
+/* Scroll progress at which each caption takes over. */
+const STAGES = [0, 0.14, 0.46, 0.8];
+
+const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
+
+/*
+  Coarse frames first, then fill in: scrubbing early still shows something
+  close to the right frame instead of stalling on the first one.
+*/
+function loadOrder(step: number) {
+  const seen = new Set<number>();
+  const order: number[] = [];
+  for (const stride of [32, 16, 8, 4, 2, 1]) {
+    for (let i = 0; i < FRAME_COUNT; i += Math.max(stride, step)) {
+      if (!seen.has(i)) {
+        seen.add(i);
+        order.push(i);
+      }
+    }
+  }
+  return order;
+}
 
 export default function Hero() {
+  const trackRef = useRef<HTMLElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState(0);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!track || !canvas || !ctx) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Phones get every other frame — half the download, still smooth.
+    const step = window.innerWidth < 768 ? 2 : 1;
+    // Full-HD frames once the canvas is wider than ~1300 device pixels.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = window.innerWidth * dpr > 1300 ? 1920 : 1280;
+    const frames: (HTMLImageElement | undefined)[] = new Array(FRAME_COUNT);
+    let cancelled = false;
+
+    // The last frame is the assembled tray, which is also the reduced-motion still.
+    let target = reduced ? FRAME_COUNT - 1 : 0;
+    let current = target;
+    let drawn = -1;
+    let dirty = true;
+    let raf = 0;
+    let visible = true;
+
+    const nearestLoaded = (i: number) => {
+      for (let d = 0; d < FRAME_COUNT; d++) {
+        if (frames[i - d]) return i - d;
+        if (frames[i + d]) return i + d;
+      }
+      return -1;
+    };
+
+    const size = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.round(canvas.clientWidth * dpr);
+      const h = Math.round(canvas.clientHeight * dpr);
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+        dirty = true;
+      }
+    };
+
+    const draw = (i: number) => {
+      const img = frames[i];
+      if (!img) return;
+      const cw = canvas.width;
+      const ch = canvas.height;
+      const iw = img.naturalWidth;
+      const ih = img.naturalHeight;
+      const portrait = cw / ch < 1;
+      // Cover on wide screens; on phones fit the width (slightly cropped) and
+      // sit the tray in the upper half, leaving room for the copy below.
+      const scale = portrait ? (cw / iw) * 1.3 : Math.max(cw / iw, ch / ih);
+      const w = iw * scale;
+      const h = ih * scale;
+      const x = (cw - w) / 2;
+      const y = portrait ? ch * 0.4 - h / 2 : (ch - h) / 2;
+
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, x, y, w, h);
+
+      if (portrait) {
+        // Feather the frame's top and bottom edges into the backdrop.
+        const feather = h * 0.2;
+        const top = ctx.createLinearGradient(0, y, 0, y + feather);
+        top.addColorStop(0, BG);
+        top.addColorStop(1, "rgba(11,12,14,0)");
+        ctx.fillStyle = top;
+        ctx.fillRect(0, y - 1, cw, feather + 1);
+        const bottom = ctx.createLinearGradient(0, y + h - feather, 0, y + h);
+        bottom.addColorStop(0, "rgba(11,12,14,0)");
+        bottom.addColorStop(1, BG);
+        ctx.fillStyle = bottom;
+        ctx.fillRect(0, y + h - feather, cw, feather + 1);
+      }
+      drawn = i;
+      dirty = false;
+    };
+
+    const readScroll = () => {
+      if (reduced) return;
+      const rect = track.getBoundingClientRect();
+      const total = track.offsetHeight - window.innerHeight;
+      const p = total > 0 ? clamp(-rect.top / total) : 0;
+      target = p * (FRAME_COUNT - 1);
+
+      // Direct style writes: these change every frame, so keep them out of React.
+      if (scrimRef.current) scrimRef.current.style.opacity = String(1 - clamp(p / STAGES[1]));
+      if (barRef.current) barRef.current.style.transform = `scaleY(${p})`;
+
+      let s = 0;
+      STAGES.forEach((t, i) => {
+        if (p >= t) s = i;
+      });
+      setStage(s); // bails out when unchanged
+    };
+
+    const tick = () => {
+      raf = 0;
+      if (!visible) return;
+      size();
+      // Ease toward the scroll position so fast flicks still play as motion.
+      current += (target - current) * 0.18;
+      if (Math.abs(target - current) < 0.05) current = target;
+      const want = nearestLoaded(Math.round(current));
+      if (want !== -1 && (want !== drawn || dirty)) draw(want);
+      if (current !== target || dirty) raf = requestAnimationFrame(tick);
+    };
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    const onScroll = () => {
+      readScroll();
+      kick();
+    };
+    const onResize = () => {
+      dirty = true;
+      onScroll();
+    };
+
+    // Load: the frame we need right now first, then the rest progressively.
+    const first = Math.round(target);
+    const order = reduced ? [first] : [first, ...loadOrder(step).filter((i) => i !== first)];
+    let next = 0;
+    const loadNext = () => {
+      if (cancelled || next >= order.length) return;
+      const i = order[next++];
+      const img = new Image();
+      img.decoding = "async";
+      img.src = frameSrc(width, i);
+      img.onload = () => {
+        if (cancelled) return;
+        frames[i] = img;
+        // A closer frame than the one on screen just arrived.
+        if (Math.abs(i - current) < Math.abs(drawn - current) || drawn === -1) dirty = true;
+        kick();
+        loadNext();
+      };
+      img.onerror = loadNext;
+    };
+    // A handful of parallel requests keeps the pipe full without flooding it.
+    for (let k = 0; k < 6; k++) loadNext();
+
+    // Pause drawing while the section is off screen.
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) onScroll();
+    });
+    io.observe(track);
+
+    readScroll();
+    current = target;
+    kick();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
+
+  /* Shared fade for captions: only the active one is visible and focusable. */
+  const fade = (i: number) =>
+    `transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      stage === i ? "opacity-100 translate-y-0" : "pointer-events-none opacity-0 translate-y-6"
+    }`;
+
   return (
     <section
+      ref={trackRef}
       id="home"
-      className="tone-scrim relative flex min-h-svh flex-col justify-end overflow-hidden lg:justify-center"
-      style={{ backgroundColor: `rgb(${SCRIM})` }}
+      aria-label="Icelib and Co"
+      className="frames-track tone-scrim relative"
+      style={{ backgroundColor: BG }}
     >
-      {/*
-        The storefront photograph, full bleed. It is the hero — nothing is
-        laid over it but the gradients the type needs to stay readable.
-      */}
-      <div className="absolute inset-0">
-        <Image
-          src="/images/shop.png"
-          alt="The Icelib and Co container cafe lit up at night beneath strings of warm bulbs"
-          fill
-          priority
-          quality={90}
-          sizes="100vw"
-          className="object-cover object-center"
+      <div className="sticky top-0 h-svh overflow-hidden">
+        <canvas
+          ref={canvasRef}
+          aria-hidden
+          className="absolute inset-0 h-full w-full"
         />
 
-        {/*
-          Phones: the copy sits over the lower half, so the scrim builds from
-          near-nothing at the top to almost solid at the base.
-        */}
+        {/* Intro dimmer — lifts as the film starts to play */}
+        <div
+          ref={scrimRef}
+          aria-hidden
+          className="absolute inset-0"
+          style={{ backgroundColor: "rgba(11,12,14,0.62)" }}
+        />
+
+        {/* Base settle, so captions always have something dark beneath them */}
         <div
           aria-hidden
-          className="absolute inset-0 lg:hidden"
+          className="absolute inset-0"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(${SCRIM},0.55) 0%, rgba(${SCRIM},0.28) 14%, rgba(${SCRIM},0.74) 34%, rgba(${SCRIM},0.88) 58%, rgba(${SCRIM},0.95) 100%)`,
+            backgroundImage:
+              "linear-gradient(to top, rgba(11,12,14,0.92) 0%, rgba(11,12,14,0.55) 22%, rgba(11,12,14,0) 48%)",
           }}
         />
 
-        {/*
-          Desktop: density off the left edge only, where the copy is, fading
-          out well before the shopfront so the photograph reads unobstructed
-          on the right.
-        */}
+        {/* 0 — Intro headline, centred over the dimmed opening frame */}
         <div
-          aria-hidden
-          className="absolute inset-0 hidden lg:block"
-          style={{
-            backgroundImage: `linear-gradient(100deg, rgba(${SCRIM},0.9) 0%, rgba(${SCRIM},0.8) 20%, rgba(${SCRIM},0.62) 40%, rgba(${SCRIM},0.3) 56%, rgba(${SCRIM},0.08) 68%, rgba(${SCRIM},0) 78%)`,
-          }}
-        />
-        {/* Vertical settle: keeps the navbar legible and grounds the base */}
-        <div
-          aria-hidden
-          className="absolute inset-0 hidden lg:block"
-          style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(${SCRIM},0.5) 0%, rgba(${SCRIM},0) 28%, rgba(${SCRIM},0) 68%, rgba(${SCRIM},0.45) 100%)`,
-          }}
-        />
-      </div>
-
-      {/* Copy */}
-      <div className="container-x relative z-10 flex flex-col pb-8 pt-32 sm:pb-12 lg:min-h-svh lg:justify-center lg:pb-0 lg:pt-24">
-        <div className="w-full lg:max-w-[52%] xl:max-w-[46%]">
-          <h1
-            className="display rise text-[3rem] text-fg sm:text-[4rem] lg:text-[4.25rem]"
-            style={{ animationDelay: "0.1s" }}
-          >
-            Sip. Bite.
-            <br />
-            <span className="relative mr-2.5 inline-block sm:mr-3.5">
-              {/*
-                The emphasis word, set in the italic cut of the display serif.
-              */}
-              <span
-                className="accent-script"
-                style={{ fontSize: "1.06em", lineHeight: 0.9 }}
-              >
-                Laugh.
-              </span>
-              {/* Hand-drawn stroke, echoing the swoosh in the logo */}
-              <svg
-                aria-hidden
-                viewBox="0 0 260 12"
-                preserveAspectRatio="none"
-                fill="none"
-                className="absolute inset-x-0 -bottom-1.5 h-[0.3em] w-full text-accent/85 lg:-bottom-2"
-              >
-                <path
-                  d="M3 9C46 4 132 2 257 5.4"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  className="draw-stroke"
-                />
-              </svg>
-            </span>
-            Repeat.
-          </h1>
-
-          {/* Supporting line — clearly secondary to the headline */}
-          <p
-            className="rise mt-7 whitespace-nowrap leading-none text-[1.02rem] font-medium tracking-[0.01em] text-accent-soft/90 sm:text-[1.15rem]"
-            style={{ animationDelay: "0.24s" }}
-          >
-            <Typewriter
-              text="Late nights. Warm lights. Good company."
-              startDelay={800}
-              loop
-            />
-          </p>
-
-          <p
-            className="rise mt-3.5 max-w-[30rem] text-[0.95rem] leading-relaxed text-muted sm:text-base"
-            style={{ animationDelay: "0.34s" }}
-          >
-            A rooftop escape by the lake, where refreshing drinks, comforting
-            bites and great conversations come together.
-          </p>
-
-          {/* Actions — full width and stacked on mobile, inline from sm up */}
-          <div
-            className="rise mt-9 flex flex-col gap-3.5 sm:mt-10 sm:flex-row sm:items-center sm:gap-4"
-            style={{ animationDelay: "0.46s" }}
-          >
-            <Link
-              href="/menu"
-              className="btn-pill btn-solid group w-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:w-auto"
+          inert={stage !== 0}
+          className={`${fade(0)} absolute inset-0 flex items-end justify-center pb-24 sm:items-center sm:pb-0`}
+        >
+          <div className="container-x flex flex-col items-center text-center">
+            <h1
+              className="display rise text-[3rem] text-fg sm:text-[4.5rem] lg:text-[5.5rem]"
+              style={{ animationDelay: "0.1s" }}
             >
-              Explore the Menu
-              <ArrowRightIcon className="h-[1.05rem] w-[1.05rem] transition-transform group-hover:translate-x-1" />
-            </Link>
-
-            <Link
-              href="/contact"
-              className="btn-pill btn-outline w-full backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:w-auto"
+              Sip. Bite.{" "}
+              <span className="relative inline-block">
+                <span className="accent-script">Laugh.</span>
+                {/* Hand-drawn stroke, echoing the swoosh in the logo */}
+                <svg
+                  aria-hidden
+                  viewBox="0 0 260 12"
+                  preserveAspectRatio="none"
+                  fill="none"
+                  className="absolute inset-x-0 -bottom-1.5 h-[0.3em] w-full text-accent/85 lg:-bottom-2"
+                >
+                  <path
+                    d="M3 9C46 4 132 2 257 5.4"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    className="draw-stroke"
+                  />
+                </svg>
+              </span>{" "}
+              Repeat.
+            </h1>
+            <p
+              className="rise mt-6 whitespace-nowrap text-[1.02rem] font-medium leading-none tracking-[0.01em] text-accent-soft/90 sm:text-[1.15rem]"
+              style={{ animationDelay: "0.24s" }}
             >
-              Find Us
-            </Link>
+              <Typewriter
+                text="Late nights. Warm lights. Good company."
+                startDelay={800}
+                loop
+              />
+            </p>
+            <div
+              className="rise mt-9 flex w-full flex-col gap-3.5 sm:w-auto sm:flex-row sm:gap-4"
+              style={{ animationDelay: "0.4s" }}
+            >
+              <Link
+                href="/menu"
+                className="btn-pill btn-solid group focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft"
+              >
+                Explore the Menu
+                <ArrowRightIcon className="h-[1.05rem] w-[1.05rem] transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link
+                href="/contact"
+                className="btn-pill btn-outline backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft"
+              >
+                Find Us
+              </Link>
+            </div>
           </div>
+        </div>
 
-          {/* Feature strip — understated, so it never competes with the headline */}
-          <ul
-            className="rise mt-11 grid grid-cols-3 sm:mt-14"
-            style={{ animationDelay: "0.58s" }}
-          >
-            {features.map(({ Icon, title, note }, i) => (
-              <li
-                key={title}
-                className={`flex flex-col items-center gap-2 px-1.5 text-center sm:flex-row sm:items-center sm:gap-2.5 sm:px-2 sm:text-left ${i > 0 ? "border-l border-white/[0.09] sm:pl-5" : "sm:pr-5"
-                  } ${i === 1 ? "sm:px-5" : ""}`}
-              >
-                <Icon className="h-[1.1rem] w-[1.1rem] shrink-0 text-accent/75" />
-                <div className="min-w-0">
-                  <p className="text-[0.76rem] font-medium leading-tight text-fg/90 sm:text-[0.82rem]">
-                    {title}
-                  </p>
-                  <p className="mt-0.5 text-[0.68rem] leading-tight text-muted/75 sm:text-[0.73rem]">
-                    {note}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
+        {/* 1, 2 — Captions over the film */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 pb-12 sm:pb-16">
+          <div className="container-x relative">
+            <div
+              inert={stage !== 1}
+              className={`${fade(1)} absolute bottom-0 max-w-md`}
+            >
+              <p className="eyebrow text-accent">Built in layers</p>
+              <h2 className="display mt-3 text-[2.25rem] text-fg sm:text-[3.25rem]">
+                Stacked high, <span className="accent-script">sauced</span> right.
+              </h2>
+            </div>
+
+            <div
+              inert={stage !== 2}
+              className={`${fade(2)} absolute bottom-0 max-w-md`}
+            >
+              <p className="eyebrow text-accent">Ice cold</p>
+              <h2 className="display mt-3 text-[2.25rem] text-fg sm:text-[3.25rem]">
+                Mint, lime and a <span className="accent-script">lot</span> of ice.
+              </h2>
+            </div>
+
+            {/* 3 — The tray lands: close on the call to action */}
+            <div
+              inert={stage !== 3}
+              className={`${fade(3)} ${stage === 3 ? "pointer-events-auto" : ""} relative max-w-md`}
+            >
+              <p className="eyebrow text-accent">Your tray is ready</p>
+              <h2 className="display mt-3 text-[2.25rem] text-fg sm:text-[3.25rem]">
+                Pull up a <span className="accent-script">chair.</span>
+              </h2>
+              <div className="mt-7 flex flex-col gap-3.5 sm:flex-row sm:gap-4">
+                <Link
+                  href="/menu"
+                  className="btn-pill btn-solid group focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft"
+                >
+                  See the Menu
+                  <ArrowRightIcon className="h-[1.05rem] w-[1.05rem] transition-transform group-hover:translate-x-1" />
+                </Link>
+                <Link
+                  href={orderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-pill btn-outline backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft"
+                >
+                  Order Now
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll progress — a hairline down the right edge */}
+        <div
+          aria-hidden
+          className="absolute right-6 top-1/2 hidden h-40 w-px -translate-y-1/2 bg-white/15 sm:block lg:right-10"
+        >
+          <div ref={barRef} className="h-full w-full origin-top scale-y-0 bg-white/80" />
+        </div>
+
+        {/* Scroll cue, only while the intro is up */}
+        <div
+          aria-hidden
+          className={`absolute inset-x-0 bottom-5 flex flex-col items-center gap-1 text-fg-soft/70 transition-opacity duration-500 ${
+            stage === 0 ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <span className="eyebrow hidden text-[0.6rem] sm:block">Scroll</span>
+          <ChevronDownIcon className="nudge h-5 w-5" />
         </div>
       </div>
-
-      {/* Scroll cue — mobile only */}
-      <Link
-        href="#signatures"
-        aria-label="Scroll to next section"
-        className="relative z-10 mx-auto mb-3 flex h-9 w-9 items-center justify-center text-fg-soft/70 lg:hidden"
-      >
-        <ChevronDownIcon className="nudge h-6 w-6" />
-      </Link>
     </section>
   );
 }

@@ -49,8 +49,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
-      <body>
+    /*
+      Browser extensions (Grammarly, Dark Reader, translators) write their own
+      attributes onto <html> and <body> before React hydrates. Suppressing the
+      warning here covers only these two elements' attributes, not their children.
+    */
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
+      <body suppressHydrationWarning>
         <Navbar />
         <main>{children}</main>
         <Footer />
