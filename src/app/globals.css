@@ -311,7 +311,21 @@ body {
   plays across; the sticky panel inside stays on screen for all of it.
 */
 .frames-track {
-  height: 420svh;
+  height: 250svh;
+}
+
+/* Tablets: a touch longer than phones, as the frames span a wider screen. */
+@media (min-width: 768px) {
+  .frames-track {
+    height: 260svh;
+  }
+}
+
+/* Wheel and trackpad scroll in small steps, so desktop gets a little more. */
+@media (min-width: 1024px) {
+  .frames-track {
+    height: 300svh;
+  }
 }
 
 /* Reveal-on-scroll */
