@@ -1,25 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { navLinks, orderUrl, site } from "@/content/site";
 import { useScrolled } from "@/hooks/useScrolled";
-
-/*
-  The home hero pins a film for several screens of scroll, so the bar stays
-  transparent until that film starts to leave the viewport. Pages without the
-  hero fall back to a plain 40px threshold.
-*/
-const heroEnd = () => {
-  const hero = document.getElementById("home");
-  if (!hero) return 40;
-  return Math.max(40, hero.offsetTop + hero.offsetHeight - window.innerHeight);
-};
+import Wordmark from "@/components/ui/Wordmark";
 
 export default function Navbar() {
-  const scrolled = useScrolled(heroEnd);
+  const scrolled = useScrolled(40);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -40,11 +29,11 @@ export default function Navbar() {
 
   return (
     /*
-      The bar stays blue rather than cream when it has a surface: the logo mark
-      is white-on-transparent, so a light bar would swallow it. It takes the
+      The bar stays blue rather than cream when it has a surface. It takes the
       brand cobalt specifically, matching the hero and every page header — so
       the bar merges into whatever sits at the top of the page instead of
-      banding across it.
+      banding across it. The wordmark is an inline SVG in `currentColor`, so it
+      follows the bar's foreground (white here).
     */
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
@@ -60,16 +49,10 @@ export default function Navbar() {
         <Link
           href="/"
           aria-label={`${site.name} — home`}
-          className="relative block h-[2.6rem] w-[132px] shrink-0 transition-opacity hover:opacity-80 sm:h-[3rem] sm:w-[153px]"
+          className="block w-[132px] shrink-0 text-fg transition-opacity hover:opacity-80 sm:w-[153px]"
         >
-          <Image
-            src="/images/logo-wordmark.png"
-            alt={`${site.name}, ${site.tagline}`}
-            fill
-            priority
-            sizes="153px"
-            className="object-contain object-left"
-          />
+          {/* The link's own label names it; the artwork is decorative here. */}
+          <Wordmark aria-hidden className="block h-auto w-full" />
         </Link>
 
         {/* Desktop links */}

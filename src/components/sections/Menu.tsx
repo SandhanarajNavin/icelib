@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { menu, type MenuItem } from "@/content/menu";
+import { menu, menuNote, type MenuItem } from "@/content/menu";
 import Section, { type Tone } from "@/components/ui/Section";
 import Reveal from "@/components/ui/Reveal";
 
@@ -16,6 +16,34 @@ const tagLabels: Record<NonNullable<MenuItem["tag"]>, string> = {
   bestseller: "Bestseller",
   new: "New",
 };
+
+/*
+  A single price, or a short stack of them — chicken / veg for momos, box
+  sizes for tenders and wings — each with its label beside it.
+*/
+function Price({ price }: { price: MenuItem["price"] }) {
+  if (typeof price === "number") {
+    return (
+      <p className="shrink-0 font-display text-lg text-accent-soft tabular-nums">
+        &#8377;{price}
+      </p>
+    );
+  }
+  return (
+    <dl className="grid shrink-0 grid-cols-[auto_auto] items-baseline gap-x-3 gap-y-0.5 text-right">
+      {price.map(({ label, price }) => (
+        <div key={label} className="contents">
+          <dt className="text-[0.7rem] uppercase tracking-[0.12em] text-muted/70">
+            {label}
+          </dt>
+          <dd className="font-display text-lg text-accent-soft tabular-nums">
+            &#8377;{price}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
 
 export default function Menu({ tone = "cobalt", bare = false }: { tone?: Tone; bare?: boolean }) {
   const [activeId, setActiveId] = useState(menu[0].id);
@@ -34,7 +62,7 @@ export default function Menu({ tone = "cobalt", bare = false }: { tone?: Tone; b
           <span className="accent-script"> one small pass</span>.
         </>
       }
-      intro="Six sections, no filler. Prices in rupees, taxes included."
+      intro={`Prices in rupees. ${menuNote}`}
     >
       {/* Category tabs */}
       <Reveal>
@@ -97,9 +125,11 @@ export default function Menu({ tone = "cobalt", bare = false }: { tone?: Tone; b
                   </span>
                 )}
               </div>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted/65">
-                {item.description}
-              </p>
+              {item.description && (
+                <p className="mt-1.5 text-sm leading-relaxed text-muted/65">
+                  {item.description}
+                </p>
+              )}
             </div>
 
             <div
@@ -107,9 +137,7 @@ export default function Menu({ tone = "cobalt", bare = false }: { tone?: Tone; b
               className="hidden flex-1 translate-y-[-3px] border-b border-dotted border-line sm:block"
             />
 
-            <p className="shrink-0 font-display text-lg text-accent-soft tabular-nums">
-              &#8377;{item.price}
-            </p>
+            <Price price={item.price} />
             </article>
           ))}
         </div>

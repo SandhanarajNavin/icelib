@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import SplitWords from "@/components/ui/SplitWords";
+import Wordmark from "@/components/ui/Wordmark";
 import { navLinks, orderUrl, site, socials } from "@/content/site";
 
 export default function Footer() {
@@ -11,15 +11,10 @@ export default function Footer() {
       <div className="container-x py-16">
         <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div className="relative h-[3.4rem] w-[173px]">
-              <Image
-                src="/images/logo-wordmark.png"
-                alt={`${site.name}, ${site.tagline}`}
-                fill
-                sizes="173px"
-                className="object-contain object-left"
-              />
-            </div>
+            <Wordmark
+              title={`${site.name}, ${site.tagline}`}
+              className="block h-auto w-[173px] text-fg"
+            />
             <SplitWords
               text={site.description}
               className="mt-5 max-w-xs text-sm leading-relaxed text-muted/85"

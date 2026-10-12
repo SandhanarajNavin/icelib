@@ -1,7 +1,12 @@
+/** One way an item is sold — "Chicken" / "Veg", or a box size. */
+export type PriceOption = { label: string; price: number };
+
 export type MenuItem = {
   name: string;
-  description: string;
-  price: number;
+  /** Left out where the board gives none, rather than inventing one. */
+  description?: string;
+  /** A single price, or one per option (shown stacked). */
+  price: number | PriceOption[];
   tag?: "signature" | "bestseller" | "new";
 };
 
@@ -12,9 +17,19 @@ export type MenuCategory = {
   items: MenuItem[];
 };
 
+/* Momos are all sold in two fillings, chicken first, as on the board. */
+const momo = (chicken: number, veg: number): PriceOption[] => [
+  { label: "Chicken", price: chicken },
+  { label: "Veg", price: veg },
+];
+
+/** Shown alongside the menu, from the foot of the board. */
+export const menuNote = "Made fresh on order — prep time 10 to 20 minutes.";
+
 /**
- * Prices below are PLACEHOLDERS — replace with the live menu-board figures.
- * Item names are taken from the Icelib & Co board.
+ * Names, prices and descriptions are taken from the Icelib & Co menu board
+ * (October 2026). Prices are in rupees. The board describes no momos; their
+ * descriptions are the site's own copy.
  */
 export const menu: MenuCategory[] = [
   {
@@ -23,129 +38,151 @@ export const menu: MenuCategory[] = [
     blurb: "Hand-folded, steamed to order, then tossed in the sauce you pick.",
     items: [
       {
-        name: "Steamed Chicken Momos",
+        name: "Steamed",
         description: "Classic parcels, clean and juicy, with fiery red chutney.",
-        price: 120,
+        price: momo(120, 110),
         tag: "bestseller",
       },
       {
-        name: "Fried Momos",
+        name: "Fried",
         description: "Golden and blistered, crisp shell giving way to soft filling.",
-        price: 140,
+        price: momo(120, 110),
       },
       {
-        name: "Peri Peri Momos",
+        name: "Peri Peri",
         description: "Dusted in smoky peri peri with a slow, building heat.",
-        price: 150,
+        price: momo(140, 130),
       },
       {
-        name: "Schezwan Momos",
+        name: "Schezwan",
         description: "Wok-tossed in garlicky schezwan, sharp and unapologetic.",
-        price: 150,
+        price: momo(140, 130),
       },
       {
-        name: "Thai Honey Momos",
+        name: "Thai Honey",
         description: "Sweet honey glaze cut with lime and a whisper of chilli.",
-        price: 160,
+        price: momo(150, 140),
       },
       {
-        name: "Bombay Masala Momos",
-        description: "Street-style masala, tangy and loud, finished with onion.",
-        price: 155,
+        name: "Kanthari Momo",
+        description: "Tossed in a fiery kanthari chilli masala.",
+        price: momo(140, 130),
       },
       {
-        name: "Lemon Pepper Momos",
+        name: "Lemon Pepper",
         description: "Bright citrus and cracked pepper — the quiet favourite.",
-        price: 150,
+        price: momo(150, 140),
       },
       {
-        name: "Dynamite Momos",
+        name: "Dynamite",
         description: "Crisp-fried, folded through a creamy chilli sauce.",
-        price: 170,
+        price: momo(150, 140),
       },
       {
-        name: "Malai Creamy Momos",
-        description: "Rich white gravy, mild and comforting, mildly spiced.",
-        price: 170,
+        name: "Malay Creamy",
+        description: "Rich white gravy, mild and comforting.",
+        price: momo(160, 150),
       },
       {
-        name: "Chicken Momos Platter",
+        name: "Platter Momo",
         description: "A little of everything — built to share, rarely shared.",
-        price: 280,
+        price: momo(180, 170),
         tag: "signature",
       },
     ],
   },
   {
-    id: "bowls",
-    label: "Signature Bowls",
-    blurb: "The two bowls the counter is known for. Both worth the wait.",
+    id: "beef-burgers",
+    label: "Beef Burgers",
+    blurb: "Smashed thin on the flat-top, so the edges catch and crisp.",
     items: [
       {
-        name: "Kunafa Pistachio Bowl",
+        name: "The OG Smash",
+        description: "Juicy smashed beef patty with cheese, pickles & signature sauce.",
+        price: 269,
+      },
+      {
+        name: "Oklahoma Smash",
+        description: "Smashed beef, caramelised onions & melted cheese.",
+        price: 299,
+      },
+      {
+        name: "Double Smash",
+        description: "Double beef patties with double cheese & house sauce.",
+        price: 369,
+      },
+      {
+        name: "Bacon Smash Burger",
+        description: "Smashed beef with crispy bacon & melted cheese.",
+        price: 399,
+      },
+    ],
+  },
+  {
+    id: "chicken-burgers",
+    label: "Chicken Burgers",
+    blurb: "Smashed or Nashville-fried, always on a soft bun.",
+    items: [
+      {
+        name: "Classic Smashed Chicken",
+        description: "Smashed chicken with coleslaw, American cheese & house sauce.",
+        price: 249,
+      },
+      {
+        name: "Double Smashed Chicken",
+        description: "Double patties with double melted cheese, veggies & mayo.",
+        price: 359,
+      },
+      {
+        name: "Nashville Chicken Burger",
         description:
-          "Shredded kunafa, pistachio cream and crushed nuts over cold ice cream.",
-        price: 260,
-        tag: "signature",
+          "Spicy Nashville-style fried chicken with pickles & creamy mayo on a toasted brioche bun.",
+        price: 289,
       },
+    ],
+  },
+  {
+    id: "tex-mex",
+    label: "Tex-Mex Specials",
+    blurb: "Grilled flat and folded, with the cheese still pulling.",
+    items: [
       {
-        name: "Mocha Truffle Bowl",
+        name: "Classic Mexican Quesadilla",
         description:
-          "Warm chocolate truffle, espresso, a scoop of vanilla and toasted nuts.",
-        price: 240,
-        tag: "signature",
+          "Grilled tortilla filled with chicken, veggies, melted cheese & Mexican seasonings.",
+        price: 239,
+      },
+      {
+        name: "Hot Chicken Quesadilla",
+        description:
+          "Spicy chicken, melted cheese, jalapeños & Mexican spices in a grilled tortilla.",
+        price: 269,
       },
     ],
   },
   {
-    id: "desserts",
-    label: "Brownies & Bakes",
-    blurb: "Cut thick, served warm, gone quickly.",
+    id: "tenders-wings",
+    label: "Tenders & Wings",
+    blurb: "Fried crisp and sauced to order. Wings come in BBQ, Nashville or Buffalo.",
     items: [
       {
-        name: "Pistachio Kunafa Brownie",
-        description: "Fudge brownie under a crown of kunafa and pistachio.",
-        price: 190,
-        tag: "bestseller",
+        name: "Nashville Chicken Tenders",
+        description:
+          "Served with a slice of toasted loaf bread, Nashville corn & dip.",
+        price: [
+          { label: "Box of 4", price: 259 },
+          { label: "Box of 6", price: 339 },
+        ],
       },
       {
-        name: "Triple Chocolate Brownie",
-        description: "Dark, milk and chip — dense, glossy, barely set.",
-        price: 160,
-      },
-      {
-        name: "Brownie with Ice Cream",
-        description: "Warm brownie, cold scoop, hot fudge poured at the pass.",
-        price: 210,
-      },
-    ],
-  },
-  {
-    id: "mojitos",
-    label: "Mojitos & Coolers",
-    blurb: "Built tall over crushed ice. Best carried out to the deck.",
-    items: [
-      {
-        name: "Classic Mint Mojito",
-        description: "Lime, muddled mint, soda. The one everyone starts with.",
-        price: 130,
-        tag: "bestseller",
-      },
-      {
-        name: "Blue Curacao Mojito",
-        description: "Electric blue, citrus-forward — the one in every photo.",
-        price: 150,
-        tag: "signature",
-      },
-      {
-        name: "Green Apple Mojito",
-        description: "Tart apple and mint, sharp enough to reset the palate.",
-        price: 140,
-      },
-      {
-        name: "Passion Fruit Cooler",
-        description: "Pulpy, tropical and just sweet enough.",
-        price: 150,
+        name: "Chicken Wings",
+        description:
+          "Crispy fried wings in your choice of BBQ, Nashville or Buffalo.",
+        price: [
+          { label: "6 pcs · 1 flavour", price: 249 },
+          { label: "9 pcs · 2 flavours", price: 369 },
+          { label: "12 pcs · 3 flavours", price: 499 },
+        ],
       },
     ],
   },
@@ -155,54 +192,113 @@ export const menu: MenuCategory[] = [
     blurb: "The reason nobody leaves after just one round.",
     items: [
       {
-        name: "Classic Salted Fries",
-        description: "Thin cut, twice fried, salted the moment they land.",
+        name: "Regular Fries",
+        description: "Classic crispy golden fries.",
         price: 110,
       },
       {
         name: "Peri Peri Fries",
-        description: "Tossed hot in peri peri so the dust actually sticks.",
-        price: 130,
+        description: "Golden fries coated in zesty peri peri seasoning.",
+        price: 129,
       },
       {
-        name: "Loaded Cheese Fries",
-        description: "Molten cheese, jalapeño and herbs over a full basket.",
-        price: 180,
+        name: "Classic Loaded Fries",
+        description: "Golden fries loaded with creamy sauce, chicken & signature toppings.",
+        price: 179,
         tag: "bestseller",
       },
       {
-        name: "Loaded Chicken Fries",
-        description: "Shredded chicken, cheese sauce and a drizzle of sriracha.",
-        price: 210,
+        name: "Hot Chicken Loaded",
+        description: "Fries with spicy fried chicken, jalapeños & spicy mayo.",
+        price: 249,
+      },
+      {
+        name: "Alfredo White Cheese Loaded",
+        description: "Fries with creamy Alfredo cheese sauce.",
+        price: 239,
+      },
+      {
+        name: "Beef Loaded Fries",
+        description: "Seasoned fries topped with juicy beef & house sauces.",
+        price: 249,
       },
     ],
   },
   {
-    id: "coffee",
-    label: "Coffee",
-    blurb: "Pulled from the machine behind the counter, morning to close.",
+    id: "appetizers",
+    label: "Appetizers",
+    blurb: "Something to pick at while the rest comes off the pass.",
     items: [
       {
-        name: "Filter Coffee",
-        description: "Strong decoction, hot milk, poured the way it should be.",
-        price: 80,
+        name: "Mozzarella Sticks",
+        description:
+          "Six crispy crumbed mozzarella sticks, served with chipotle sauce.",
+        price: 249,
       },
-      {
-        name: "Cappuccino",
-        description: "Double shot under a thick, even cap of foam.",
-        price: 120,
-      },
-      {
-        name: "Cold Coffee",
-        description: "Blended thick and cold, topped with a scoop.",
-        price: 160,
-        tag: "bestseller",
-      },
-      {
-        name: "Hazelnut Latte",
-        description: "Smooth espresso, steamed milk, warm hazelnut.",
-        price: 150,
-      },
+    ],
+  },
+  {
+    id: "mojitos",
+    label: "Mojitos",
+    blurb: "Built tall over crushed ice. Best carried out to the deck.",
+    items: [
+      { name: "Virgin", price: 110 },
+      { name: "Blue Ocean", price: 120, tag: "signature" },
+      { name: "Green Apple", price: 130 },
+      { name: "Watermelon", price: 120 },
+      { name: "Bubble Gum", price: 130 },
+      { name: "Passion Fruit", price: 120 },
+    ],
+  },
+  {
+    id: "cold-beverages",
+    label: "Cold Beverages",
+    blurb: "Iced teas and iced coffees for the warm evenings.",
+    items: [
+      { name: "Peach Iced Tea", price: 120 },
+      { name: "Lemon Iced Tea", price: 110 },
+      { name: "Iced Coffee", price: 110 },
+      { name: "Iced Hazelnut", price: 149 },
+      { name: "Iced Americano", price: 99 },
+      { name: "Iced Tiramisu", price: 179 },
+    ],
+  },
+  {
+    id: "hot-beverages",
+    label: "Hot Beverages",
+    blurb: "Coffee and tea, poured from morning to close.",
+    items: [
+      { name: "Signature Coffee", price: 30 },
+      { name: "Black Coffee", price: 20 },
+      { name: "Black Coffee (100% Arabica)", price: 50 },
+      { name: "Choco Coffee", price: 40 },
+      { name: "Irish Coffee", price: 70 },
+      { name: "Lavender Coffee", price: 80 },
+      { name: "Hazelnut Coffee", price: 80 },
+      { name: "Caramel Coffee", price: 80 },
+      { name: "Tiramisu Coffee", price: 90 },
+      { name: "French Vanilla (Black)", price: 60 },
+      { name: "Black Tea", price: 20 },
+      { name: "Lemon Tea", price: 20 },
+      { name: "Sulaimani Tea", price: 30 },
+      { name: "Honey Lemon Tea", price: 30 },
+      { name: "Blue Pea Tea", price: 40 },
+      { name: "Hibiscus Tea", price: 40 },
+    ],
+  },
+  {
+    id: "desserts",
+    label: "Desserts",
+    blurb: "Kunafa, trifles and mud bowls — the counter's sweet side.",
+    items: [
+      { name: "Pistachio Kunafa Brownie", price: 220, tag: "bestseller" },
+      { name: "Kunafa Pistachio Bowl", price: 220, tag: "signature" },
+      { name: "Nutella Kunafa Bowl", price: 210 },
+      { name: "Vanilla Choco Trifle", price: 159 },
+      { name: "Lotus Biscoff Trifle", price: 220 },
+      { name: "Nutella Pistachio Trifle", price: 210 },
+      { name: "Chocolate Mud Bowl", price: 189 },
+      { name: "Tiramisu Mud Bowl", price: 179 },
     ],
   },
 ];

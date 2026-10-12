@@ -28,12 +28,12 @@ export const metadata: Metadata = {
     template: `%s — ${site.name}`,
   },
   description:
-    "Lakeside drinks and eatery in Coimbatore. Momos, signature kunafa bowls, brownies and mojitos, served under the string lights until late.",
+    "Lakeside drinks and eatery in Coimbatore. Momos, smash burgers, loaded fries, kunafa desserts and mojitos, served under the string lights until late.",
   metadataBase: new URL("https://icelibandco.in"),
   openGraph: {
     title: `${site.name} — ${site.tagline}`,
     description:
-      "Lakeside drinks and eatery in Coimbatore. Momos, signature bowls, brownies and mojitos under the string lights.",
+      "Lakeside drinks and eatery in Coimbatore. Momos, smash burgers, kunafa desserts and mojitos under the string lights.",
     images: ["/images/shop.png"],
     type: "website",
   },

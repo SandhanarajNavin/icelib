@@ -7,7 +7,7 @@ const cards = [
   {
     href: "/menu",
     label: "The Menu",
-    body: "Six sections, no filler — momos, signature bowls, brownies, mojitos, loaded fries and coffee.",
+    body: "Momos, smash burgers, tenders and wings, loaded fries, mojitos, coffee and kunafa desserts.",
     image: "/images/chicken-momos-platter.jpg",
     alt: "A sharing platter of chicken momos with chutney and clear soup",
   },

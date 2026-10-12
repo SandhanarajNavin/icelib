@@ -6,7 +6,7 @@ import Callout from "@/components/sections/Callout";
 export const metadata: Metadata = {
   title: "Menu",
   description:
-    "Momos, signature kunafa bowls, brownies and bakes, mojitos and coolers, loaded fries and coffee. Prices in rupees, taxes included.",
+    "Momos, smash burgers, Nashville tenders and wings, loaded fries, mojitos, coffee and kunafa desserts. Prices in rupees.",
 };
 
 export default function MenuPage() {
@@ -20,7 +20,7 @@ export default function MenuPage() {
             <span className="accent-script">one small pass</span>.
           </>
         }
-        intro="Six sections, no filler. Hand-folded, steamed and poured to order — which is why there's sometimes a wait, and why it's worth it."
+        intro="Momos to smash burgers, mojitos to kunafa. Everything is made fresh on order — which is why there's sometimes a 10 to 20 minute wait, and why it's worth it."
       />
       <Menu tone="cream" bare />
       <Callout
