@@ -184,6 +184,17 @@ body {
 }
 
 /**
+ * Headline treatment for the home page: the same display serif, but in
+ * title case rather than capitals, as the home page design sets it.
+ */
+.headline {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.005em;
+}
+
+/**
  * Accent word inside a heading. The design has no handwritten face, so the
  * emphasis is carried by an italic cut of the display serif instead.
  */
@@ -306,6 +317,27 @@ body {
   }
 }
 
+/* Home hero photo: fades in on load while settling from a very slight zoom. */
+@keyframes hero-settle {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hero-settle {
+  animation: hero-settle 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Endless horizontal strip (the reviews): the edges fade out instead of cutting off. */
+.marquee {
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
 /* Reveal-on-scroll */
 .reveal {
   opacity: 0;
@@ -391,6 +423,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .rise,
+  .hero-settle,
   .nudge,
   .draw-stroke,
   .caret {

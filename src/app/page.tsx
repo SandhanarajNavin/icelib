@@ -1,15 +1,23 @@
 import Hero from "@/components/sections/Hero";
+import Highlights from "@/components/sections/Highlights";
 import Signatures from "@/components/sections/Signatures";
-import Teasers from "@/components/sections/Teasers";
-import Callout from "@/components/sections/Callout";
+import OurSpace from "@/components/sections/OurSpace";
+import Evenings from "@/components/sections/Evenings";
+import Moments from "@/components/sections/Moments";
+import VisitBand from "@/components/sections/VisitBand";
+import Reviews from "@/components/sections/Reviews";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <Signatures tone="cream" />
-      <Teasers tone="cobalt" />
-      <Callout tone="deep" />
+      <Highlights />
+      <Signatures />
+      <OurSpace />
+      <Evenings />
+      <Moments />
+      <VisitBand />
+      <Reviews />
     </>
   );
 }

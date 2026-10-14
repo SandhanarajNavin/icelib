@@ -4,11 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { navLinks, orderUrl, site } from "@/content/site";
-import { useScrolled } from "@/hooks/useScrolled";
 import Wordmark from "@/components/ui/Wordmark";
 
 export default function Navbar() {
-  const scrolled = useScrolled(40);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -17,30 +15,17 @@ export default function Navbar() {
     setOpen(false);
   }, [pathname]);
 
-  /*
-    Only the home page puts a full-bleed photograph behind the bar. Everywhere
-    else the bar sits on a light page header, so it needs its own surface from
-    the very top rather than waiting for a scroll.
-  */
-  const overHero = pathname === "/" && !scrolled;
-
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     /*
-      The bar stays blue rather than cream when it has a surface. It takes the
-      brand cobalt specifically, matching the hero and every page header — so
-      the bar merges into whatever sits at the top of the page instead of
-      banding across it. The wordmark is an inline SVG in `currentColor`, so it
-      follows the bar's foreground (white here).
+      A solid brand-cobalt bar on every page, home included, as the design
+      sets it. The wordmark is an inline SVG in `currentColor`, so it follows
+      the bar's foreground (white here).
     */
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        overHero
-          ? "tone-scrim border-b border-transparent bg-transparent"
-          : "tone-cobalt border-b border-line bg-brand/92 backdrop-blur-xl"
-      }`}
+      className="tone-cobalt fixed inset-x-0 top-0 z-50 border-b border-line bg-brand"
     >
       <nav
         aria-label="Primary"

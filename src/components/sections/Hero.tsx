@@ -1,19 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import Typewriter from "@/components/ui/Typewriter";
-import {
-  ArrowRightIcon,
-  ChevronDownIcon,
-  CoffeeIcon,
-  HeartIcon,
-  StarIcon,
-} from "@/components/ui/icons";
-
-const features = [
-  { Icon: CoffeeIcon, title: "Premium Quality", note: "Finest ingredients" },
-  { Icon: HeartIcon, title: "Made with Love", note: "Just for you" },
-  { Icon: StarIcon, title: "Cozy Vibes", note: "Every time" },
-];
+import { ArrowRightIcon } from "@/components/ui/icons";
 
 /*
   Scrim channel values. Deliberately neutral rather than a brand blue: the
@@ -22,176 +9,108 @@ const features = [
 */
 const SCRIM = "9, 11, 15";
 
+/*
+  Film grain: fractal noise drawn by an inline SVG, tiled over the photo at
+  low opacity. Static, so it reads as texture rather than flicker.
+*/
+const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
+/**
+ * Home hero: the feast on the counter, full bleed, with the line and two ways
+ * in on the left. The photograph fades in on load while settling from a very
+ * slight zoom, and a fine grain sits over it. The navbar sits solid above,
+ * so the copy clears it with top padding.
+ */
 export default function Hero() {
   return (
     <section
       id="home"
-      className="tone-scrim relative flex min-h-svh flex-col justify-end overflow-hidden lg:justify-center"
+      className="tone-scrim relative flex min-h-[38rem] items-end overflow-hidden sm:min-h-[42rem] lg:min-h-svh lg:items-center"
       style={{ backgroundColor: `rgb(${SCRIM})` }}
     >
-      {/*
-        The spread on the counter, full bleed. It is the hero — nothing is
-        laid over it but the gradients the type needs to stay readable.
-      */}
-      <div className="absolute inset-0">
+      <div className="hero-settle absolute inset-0">
         <Image
-          src="/images/hero-spread.jpg"
-          alt="Smash burgers, fries, fried chicken with corn, glazed momos, an iced tea and a mojito in Icelib & Co packaging on a steel counter"
+          src="/images/hero-feast.jpg"
+          alt="Smash burgers, fries, glazed chicken wings, momos with dipping sauces, an iced tea and a mojito in Icelib & Co packaging on a stainless steel counter"
           fill
           priority
           quality={90}
           sizes="100vw"
-          className="object-cover object-center"
-        />
-
-        {/*
-          Phones: the copy sits over the lower half, so the scrim builds from
-          near-nothing at the top to almost solid at the base.
-        */}
-        <div
-          aria-hidden
-          className="absolute inset-0 lg:hidden"
-          style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(${SCRIM},0.55) 0%, rgba(${SCRIM},0.28) 14%, rgba(${SCRIM},0.74) 34%, rgba(${SCRIM},0.88) 58%, rgba(${SCRIM},0.95) 100%)`,
-          }}
-        />
-
-        {/*
-          Desktop: density off the left edge only, where the copy is, fading
-          out well before the burgers so the photograph reads unobstructed
-          on the right.
-        */}
-        <div
-          aria-hidden
-          className="absolute inset-0 hidden lg:block"
-          style={{
-            backgroundImage: `linear-gradient(100deg, rgba(${SCRIM},0.9) 0%, rgba(${SCRIM},0.8) 20%, rgba(${SCRIM},0.62) 40%, rgba(${SCRIM},0.3) 56%, rgba(${SCRIM},0.08) 68%, rgba(${SCRIM},0) 78%)`,
-          }}
-        />
-        {/* Vertical settle: keeps the navbar legible and grounds the base */}
-        <div
-          aria-hidden
-          className="absolute inset-0 hidden lg:block"
-          style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(${SCRIM},0.5) 0%, rgba(${SCRIM},0) 28%, rgba(${SCRIM},0) 68%, rgba(${SCRIM},0.45) 100%)`,
-          }}
+          className="object-cover object-[62%_center] lg:object-center"
         />
       </div>
 
-      {/* Copy */}
-      <div className="container-x relative z-10 flex flex-col pb-8 pt-32 sm:pb-12 lg:min-h-svh lg:justify-center lg:pb-0 lg:pt-24">
-        <div className="w-full lg:max-w-[52%] xl:max-w-[46%]">
+      {/* Phones: the copy sits low, so the scrim builds toward the base. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 lg:hidden"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(${SCRIM},0.3) 0%, rgba(${SCRIM},0.2) 22%, rgba(${SCRIM},0.8) 55%, rgba(${SCRIM},0.95) 100%)`,
+        }}
+      />
+
+      {/*
+        Desktop: density off the left edge only, where the copy is, fading
+        out before the burgers so the food reads unobstructed on the right.
+      */}
+      <div
+        aria-hidden
+        className="absolute inset-0 hidden lg:block"
+        style={{
+          backgroundImage: `linear-gradient(100deg, rgba(${SCRIM},0.92) 0%, rgba(${SCRIM},0.8) 24%, rgba(${SCRIM},0.5) 40%, rgba(${SCRIM},0.12) 56%, rgba(${SCRIM},0) 66%)`,
+        }}
+      />
+
+      {/* Grain, over photo and scrims alike */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.14] mix-blend-overlay"
+        style={{ backgroundImage: GRAIN }}
+      />
+
+      <div className="container-x relative z-10 pb-14 pt-32 sm:pb-20 lg:py-32">
+        <div className="max-w-xl">
+          <p className="eyebrow rise text-fg/85" style={{ animationDelay: "0.2s" }}>
+            Lakeside Drinks &amp; Eatery
+          </p>
+
           <h1
-            className="display rise text-[3rem] text-fg sm:text-[4rem] lg:text-[4.25rem]"
-            style={{ animationDelay: "0.1s" }}
+            className="headline rise mt-5 text-[3.4rem] text-fg sm:text-[4.75rem] lg:text-[5.75rem]"
+            style={{ animationDelay: "0.28s" }}
           >
             Sip. Bite.
             <br />
-            <span className="relative mr-2.5 inline-block sm:mr-3.5">
-              {/*
-                The emphasis word, set in the italic cut of the display serif.
-              */}
-              <span
-                className="accent-script"
-                style={{ fontSize: "1.06em", lineHeight: 0.9 }}
-              >
-                Laugh.
-              </span>
-              {/* Hand-drawn stroke, echoing the swoosh in the logo */}
-              <svg
-                aria-hidden
-                viewBox="0 0 260 12"
-                preserveAspectRatio="none"
-                fill="none"
-                className="absolute inset-x-0 -bottom-1.5 h-[0.3em] w-full text-accent/85 lg:-bottom-2"
-              >
-                <path
-                  d="M3 9C46 4 132 2 257 5.4"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  className="draw-stroke"
-                />
-              </svg>
-            </span>
-            Repeat.
+            Laugh. Repeat.
           </h1>
 
-          {/* Supporting line — clearly secondary to the headline */}
           <p
-            className="rise mt-7 whitespace-nowrap leading-none text-[1.02rem] font-medium tracking-[0.01em] text-accent-soft/90 sm:text-[1.15rem]"
-            style={{ animationDelay: "0.24s" }}
+            className="rise mt-6 max-w-sm text-base leading-relaxed text-muted sm:text-lg"
+            style={{ animationDelay: "0.4s" }}
           >
-            <Typewriter
-              text="Late nights. Warm lights. Good company."
-              startDelay={800}
-              loop
-            />
+            A lakeside eatery for good food, refreshing drinks and even better
+            evenings.
           </p>
 
-          <p
-            className="rise mt-3.5 max-w-[30rem] text-[0.95rem] leading-relaxed text-muted sm:text-base"
-            style={{ animationDelay: "0.34s" }}
-          >
-            A rooftop escape by the lake, where refreshing drinks, comforting
-            bites and great conversations come together.
-          </p>
-
-          {/* Actions — full width and stacked on mobile, inline from sm up */}
           <div
-            className="rise mt-9 flex flex-col gap-3.5 sm:mt-10 sm:flex-row sm:items-center sm:gap-4"
-            style={{ animationDelay: "0.46s" }}
+            className="rise mt-9 flex flex-col gap-3.5 sm:flex-row sm:items-center sm:gap-4"
+            style={{ animationDelay: "0.52s" }}
           >
             <Link
               href="/menu"
-              className="btn-pill btn-solid group w-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:w-auto"
+              className="btn-pill group h-12 border-brand bg-brand text-white hover:border-[#0a44a6] hover:bg-[#0a44a6] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white"
             >
-              Explore the Menu
-              <ArrowRightIcon className="h-[1.05rem] w-[1.05rem] transition-transform group-hover:translate-x-1" />
+              Explore Menu
+              <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
-
             <Link
-              href="/contact"
-              className="btn-pill btn-outline w-full backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-soft sm:w-auto"
+              href="/brand-story"
+              className="btn-pill btn-outline h-12 backdrop-blur-sm focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white"
             >
-              Find Us
+              Our Story
             </Link>
           </div>
-
-          {/* Feature strip — understated, so it never competes with the headline */}
-          <ul
-            className="rise mt-11 grid grid-cols-3 sm:mt-14"
-            style={{ animationDelay: "0.58s" }}
-          >
-            {features.map(({ Icon, title, note }, i) => (
-              <li
-                key={title}
-                className={`flex flex-col items-center gap-2 px-1.5 text-center sm:flex-row sm:items-center sm:gap-2.5 sm:px-2 sm:text-left ${i > 0 ? "border-l border-white/[0.09] sm:pl-5" : "sm:pr-5"
-                  } ${i === 1 ? "sm:px-5" : ""}`}
-              >
-                <Icon className="h-[1.1rem] w-[1.1rem] shrink-0 text-accent/75" />
-                <div className="min-w-0">
-                  <p className="text-[0.76rem] font-medium leading-tight text-fg/90 sm:text-[0.82rem]">
-                    {title}
-                  </p>
-                  <p className="mt-0.5 text-[0.68rem] leading-tight text-muted/75 sm:text-[0.73rem]">
-                    {note}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
-
-      {/* Scroll cue — mobile only */}
-      <Link
-        href="#signatures"
-        aria-label="Scroll to next section"
-        className="relative z-10 mx-auto mb-3 flex h-9 w-9 items-center justify-center text-fg-soft/70 lg:hidden"
-      >
-        <ChevronDownIcon className="nudge h-6 w-6" />
-      </Link>
     </section>
   );
 }

@@ -21,6 +21,8 @@ type SectionProps = {
   tone?: Tone;
   /** Skip the heading block — the page already has a PageHeader above it. */
   bare?: boolean;
+  /** "h1" when the section opens the page and its title is the page heading. */
+  titleAs?: "h1" | "h2";
   className?: string;
 };
 
@@ -40,6 +42,7 @@ export default function Section({
   centered = false,
   tone = "cream",
   bare = false,
+  titleAs: Title = "h2",
   className = "",
 }: SectionProps) {
   const align = centered ? "mx-auto max-w-2xl text-center" : "max-w-2xl";
@@ -70,9 +73,9 @@ export default function Section({
             Cormorant runs optically small, so the section heading sits at the
             design's 48px rather than the sans it replaced.
           */}
-          <h2 className="display mt-5 text-[2.5rem] text-fg text-balance sm:text-5xl">
+          <Title className="display mt-5 text-[2.5rem] text-fg text-balance sm:text-5xl">
             <MaskReveal delay={0.08}>{title}</MaskReveal>
-          </h2>
+          </Title>
 
           {intro && (
             <SplitWords
